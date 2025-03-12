@@ -110,8 +110,8 @@ def main():
         if args.swap_all:
             subdomain = swap_characters("all", subdomain)
             domain = swap_characters("all", domain)
-        passwords = get_rules(subdomain, domain, args.year, args.special, args.maiuscula)
-        print(passwords)
+        passwords = get_rules(subdomain, domain, args.year, args.special, args.maiuscula, args.subdomain)
+        print(set(passwords))
     else:
         print('Usage: PassGenerator.py -d <domain>')
 
