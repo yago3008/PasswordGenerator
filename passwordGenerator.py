@@ -2,6 +2,17 @@ import argparse
 import itertools
 import datetime
 
+
+def args_parser():
+    parser = argparse.ArgumentParser(description="Gerador de padrões de senha.")
+    parser.add_argument("-d", "--domain", help="Domínio para incluir no padrão da senha.")
+    parser.add_argument("-SD", "--subdomain", action="store_true", help="Subdomínio para incluir no padrão da senha.")
+    parser.add_argument("-y", "--year", type=int, help="Inclui o year atual no padrão da senha.")
+    parser.add_argument("-S", "--special", action="store_true", help="Inclui caracteres especiais no padrão da senha.")
+    parser.add_argument("-U", "--maiuscula", action="store_true", help="Inclui letras maiúsculas no padrão da senha.")
+    parser.add_argument("-Sw","--swap", type=str, help="Swap some caracteres, Exemple: s=$;e=&")
+    parser.add_argument("-SA", "--swap-all", type=str, help="Swap all caracteres by default dictionary")
+    return parser.parse_args()
 def get_rules(subdomain, domain, year=False, special=False, maiuscula=False, subdomain_included=False):
     passwords = []
     if not subdomain_included: subdomain = ''
@@ -89,17 +100,15 @@ def swap_characters(char_to_swap, word):
         else:
             new_word += char
     return new_word
-def main():
-    parser = argparse.ArgumentParser(description="Gerador de padrões de senha.")
-    parser.add_argument("-d", "--domain", help="Domínio para incluir no padrão da senha.")
-    parser.add_argument("-SD", "--subdomain", action="store_true", help="Subdomínio para incluir no padrão da senha.")
-    parser.add_argument("-y", "--year", type=int, help="Inclui o year atual no padrão da senha.")
-    parser.add_argument("-S", "--special", action="store_true", help="Inclui caracteres especiais no padrão da senha.")
-    parser.add_argument("-U", "--maiuscula", action="store_true", help="Inclui letras maiúsculas no padrão da senha.")
-    parser.add_argument("-Sw","--swap", type=str, help="Swap some caracteres, Exemple: s=$;e=&")
-    parser.add_argument("-SA", "--swap-all", type=str, help="Swap all caracteres by default dictionary")
 
-    args = parser.parse_args()
+def print_array(array):
+    for password in array:
+        print(password)
+
+def main():
+
+
+    args = args_parser()
 
     if args.domain:
         subdomain, domain = split_domain(args.domain)
@@ -111,7 +120,7 @@ def main():
             subdomain = swap_characters("all", subdomain)
             domain = swap_characters("all", domain)
         passwords = get_rules(subdomain, domain, args.year, args.special, args.maiuscula, args.subdomain)
-        print(set(passwords))
+        print_array(set(passwords))
     else:
         print('Usage: PassGenerator.py -d <domain>')
 
