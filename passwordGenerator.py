@@ -26,8 +26,8 @@ def get_rules(subdomain, domain, year=False, special=False, maiuscula=False, sub
         years = get_years(year)
     if special:
         special_chars = ['!', '#', '$', '@', '*']
-    
     passwords = get_password(subdomain, domain, years, special_chars)
+
     return passwords
 
 def get_password(subdomain, domain, years=None, special=None):
@@ -36,8 +36,13 @@ def get_password(subdomain, domain, years=None, special=None):
     # Garante que sejam listas, e se vazio vira lista com string vazia para iterar
     if not subdomain:
         subdomain = ['']
+    elif isinstance(subdomain, str):
+        subdomain = [subdomain]
+
     if not domain:
         domain = ['']
+    elif isinstance(domain, str):
+        domain = [domain]
 
     # Se None, inicializa com lista vazia
     if years is None:
