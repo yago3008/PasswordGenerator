@@ -1,7 +1,7 @@
 import argparse
 import itertools
 import datetime
-
+from itertools import product
 
 def args_parser():
     parser = argparse.ArgumentParser(description="Gerador de padrões de senha.")
@@ -15,6 +15,8 @@ def args_parser():
     return parser.parse_args()
 def get_rules(subdomain, domain, year=False, special=False, maiuscula=False, subdomain_included=False):
     passwords = []
+    years = []
+    special_chars = []
     if not subdomain_included: subdomain = ''
     
     if maiuscula:
@@ -30,38 +32,71 @@ def get_rules(subdomain, domain, year=False, special=False, maiuscula=False, sub
 
 def get_password(subdomain, domain, years=None, special=None):
     passwords = []
+
+    # Garante que sejam listas, e se vazio vira lista com string vazia para iterar
+    if not subdomain:
+        subdomain = ['']
+    if not domain:
+        domain = ['']
+
+    # Se None, inicializa com lista vazia
+    if years is None:
+        years = []
+    if special is None:
+        special = []
+
     for sub_part in subdomain:
         for dom_part in domain:
-            for y in years:
-                for s in special:
+            if years and special:
+                for y in years:
+                    for s in special:
+                        password_parts = [sub_part, dom_part]
+                        if y:
+                            password_parts.append(str(y))
+                        if s:
+                            password_parts.append(s)
+                        for perm in itertools.permutations(password_parts):
+                            passwords.append("".join(perm))
+            elif years:
+                for y in years:
                     password_parts = [sub_part, dom_part]
                     if y:
                         password_parts.append(str(y))
-                    if s:
-                        password_parts.append(s)
-
                     for perm in itertools.permutations(password_parts):
                         passwords.append("".join(perm))
+            elif special:
+                for s in special:
+                    password_parts = [sub_part, dom_part]
+                    if s:
+                        password_parts.append(s)
+                    for perm in itertools.permutations(password_parts):
+                        passwords.append("".join(perm))
+            else:
+                # Nenhum year nem special, só subdomain e domain
+                password_parts = [sub_part, dom_part]
+                for perm in itertools.permutations(password_parts):
+                    passwords.append("".join(perm))
+
     return passwords
+
 def strip_word(word):
     return list(word)
 
 def split_domain(domain):
+    if domain.count('.') == 1:
+        domain = domain.split('.')[0]
+        subdomain = ''
+        return subdomain, domain
     subdomain = domain.split('.')[0]
     domain = domain.split('.')[1]
     return subdomain, domain
 
 def upper_case(word, all=False):
-    word_list = list(word)
-    results = []
-    if not all:
-        for i in range(len(word)):
-            temp_list = word_list[:]
-            temp_list[i] = temp_list[i].upper()
-            results.append("".join(temp_list))
-        results.append(word.upper())
-        return results
-    return word.upper()
+    if all:
+        return word.upper()
+    variants = product(*[(c.lower(), c.upper()) for c in word])
+    return [''.join(p) for p in variants]
+
 
 def get_years(iterator):
     years = []
@@ -102,6 +137,7 @@ def swap_characters(char_to_swap, word):
     return new_word
 
 def print_array(array):
+    print(f"Total passwords: {len(array)}")
     for password in array:
         print(password)
 
